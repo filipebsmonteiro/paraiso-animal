@@ -7,12 +7,10 @@
 import { usePessoaStore } from '@/stores/pessoa'
 import { mapState } from 'pinia';
 import SimpleTable from '@/components/Table/SimpleTable.vue';
-import CreateEditForm from './CreateEditForm.vue';
 
 export default {
   name: 'ListPage',
   components: {
-    CreateEditForm,
     SimpleTable,
   },
   computed: {

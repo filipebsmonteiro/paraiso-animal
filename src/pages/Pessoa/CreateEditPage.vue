@@ -116,7 +116,11 @@ export default {
           ...params.contato,
         }
       };
-      await this.post();
+      await this.post()
+      .then(() => {
+        this.$notify.success('Pessoa criada com sucesso!');
+        this.$router.push({ name: 'pessoa.list' });
+      })
     },
   },
   async mounted() {
