@@ -8,10 +8,7 @@ const Dir = __dirname;
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
-    'process.env': {
-      ...process.env,
-      VUE_ROUTER_MODE: `history`
-    }
+    'process.env': { ...process.env }
   },
   plugins: [vue()],
   resolve: {
