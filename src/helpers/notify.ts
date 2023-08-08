@@ -1,5 +1,5 @@
 export default {
-  install(app, options) {
+  install(app) {
     let wrapper: HTMLElement | null = null;
 
     const init = () => {

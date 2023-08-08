@@ -1,8 +1,9 @@
-<script setup>
+<script setup lang="ts">
 import { ref } from 'vue'
+import { Field } from './types'
 const props = defineProps({
   fields: {
-    type: Array,
+    type: Array<Field>,
     required: true,
   },
   submitHandler: {
@@ -12,7 +13,7 @@ const props = defineProps({
 })
 
 const submitting = ref(false);
-const handleSubmit = async (params) => {
+const handleSubmit = async (params: object) => {
   submitting.value = true
   await new Promise(resolve => resolve(props.submitHandler(params)))
   submitting.value = false

@@ -1,6 +1,5 @@
 import ContatoRepository from "@/repositories/ContatoRepository";
 import PessoaRepository from "@/repositories/PessoaRepository";
-import TipoContatoRepository from "@/repositories/TipoContatoRepository";
 
 export default {
   async find(id: string | number, params: any = null) {
@@ -27,10 +26,6 @@ export default {
         this.list = []
       });
 
-    // this.list.forEach(async (pessoa: any) => {
-    //   pessoa = await Pessoa.hydrateRelations(pessoa, [`contato`, `dados-bancarios`, `documento`, `endereco`])
-    // });
-
     // const unsubscribe = Pessoa.subscribeAllChanges();
     // setTimeout(() => {
     //   unsubscribe();
@@ -38,7 +33,7 @@ export default {
 
     this.loading = false;
   },
-  async post() {
+  async create() {
     this.loading = true;
     let pessoa = {...this.current},
     contato = {...this.current.contato};
@@ -56,5 +51,42 @@ export default {
     });
 
     this.loading = false;
-  }
+  },
+  async update() {
+    this.loading = true;
+    let pessoa = {...this.current},
+    contato = {...this.current.contato};
+
+    if (pessoa.contato) {
+      contato = await ContatoRepository.put(pessoa.contato.id, pessoa.contato);
+    }
+
+    await PessoaRepository.put(pessoa.id, {
+      ...pessoa,
+      contato
+    }).catch((error) => {
+      console.error(`Error On Edit Pessoa`);
+      console.error(error);
+    });
+
+    this.loading = false;
+  },
+  async delete() {
+    this.loading = true;
+    console.log('this.current :>> ', this.current);
+    let pessoa = {...this.current},
+    contato = {...this.current.contato};
+
+    if (pessoa.contato) {
+      contato = await ContatoRepository.delete(pessoa.contato.id);
+    }
+
+    await PessoaRepository.delete(pessoa.id)
+    .catch((error) => {
+      console.error(`Error On Delete Pessoa`);
+      console.error(error);
+    });
+
+    this.loading = false;
+  },
 }

@@ -51,7 +51,7 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import MenuLink from "@/components/Navigation/MenuLink.vue";
 import { useAuthStore } from "@/stores/auth";
 import { defineComponent, ref } from "vue";

@@ -1,3 +1,28 @@
+<script setup lang="ts">
+defineProps({
+  title: {
+    type: String,
+    required: true,
+  },
+  caption: {
+    type: String,
+    default: "",
+  },
+  external: {
+    type: Boolean,
+    default: false,
+  },
+  link: {
+    type: [String, Object],
+    default: "#",
+  },
+  icon: {
+    type: String,
+    default: "",
+  },
+});
+</script>
+
 <template>
   <component
     :is="external ? `a` : `router-link`"
@@ -18,36 +43,6 @@
     </div>
   </component>
 </template>
-
-<script>
-import { defineComponent } from "vue";
-
-export default defineComponent({
-    name: "EssentialLink",
-    props: {
-        title: {
-            type: String,
-            required: true,
-        },
-        caption: {
-            type: String,
-            default: "",
-        },
-        external: {
-            type: Boolean,
-            default: false,
-        },
-        link: {
-            type: [String, Object],
-            default: "#",
-        },
-        icon: {
-            type: String,
-            default: "",
-        },
-    }
-});
-</script>
 
 <style lang="scss" scoped>
 .menu-item {
@@ -72,11 +67,6 @@ export default defineComponent({
   
   .icon {
     padding: 0 12px;
-  }
-
-  .caption {
-      font-size: 0.8em;
-      display: block;
   }
 }
 </style>

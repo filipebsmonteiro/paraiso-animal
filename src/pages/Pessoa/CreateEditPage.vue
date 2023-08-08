@@ -7,11 +7,12 @@
   </div>
 </template>
 
-<script>
+<script lang="ts">
 import FormGenerator from '@/components/Form/FormGenerator.vue'
 import { mapActions, mapState, mapWritableState } from 'pinia';
 import { useContatoStore } from '@/stores/contato';
 import { usePessoaStore } from '@/stores/pessoa';
+import { deepMerge } from '@/helpers/functions';
 
 export default {
   name: 'CreateEditForm',
@@ -70,11 +71,11 @@ export default {
               placeholder: 'Contato',
               validation: [
                 [`required`],
-                // ['matches', /^(\d{2}) \d{5}-\d{4}$/]
+                ['matches', /^\w+@\w+\.\w{2,3}|\(\d{2}\)\d{4,5}-\d{4}$/]
               ],
-              // validationMessages: {
-              //   matches: 'Para telefone use o formato: (xx)xxxxx-xxxx',
-              // }
+              validationMessages: {
+                matches: 'Para contato use o formato: (99)99999-9999 ou Email válido',
+              }
             },
             {
               type: 'select',
@@ -83,7 +84,7 @@ export default {
               placeholder: 'Tipo de Contato',
               validation: [[`required`]],
               options: [
-                { label: 'Selecione', value: '', attrs: { disabled: true } },
+                { label: 'Selecione o Tipo de Contato', value: '', attrs: { disabled: true } },
               ],
             }
           ]
@@ -92,7 +93,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions(usePessoaStore, ['find', 'post']),
+    ...mapActions(usePessoaStore, ['find', 'create', `update`]),
     ...mapActions(useContatoStore, {loadContactTypes: 'loadTypes'}),
     populateFieldValues() {
       this.fields.forEach(field => {
@@ -108,15 +109,17 @@ export default {
       })
     },
     async submitHandler(params) {
-      this.current = {
-        ...this.current,
-        ...params,
-        contato: {
-          ...this.current?.contato,
-          ...params.contato,
-        }
-      };
-      await this.post()
+      this.current = deepMerge(this.current || {}, params);
+      if (this.current?.id) {
+        await this.update()
+        .then(() => {
+          this.$notify.success('Pessoa editada com sucesso!');
+          this.$router.push({ name: 'pessoa.list' });
+        })  
+        return;
+      }
+
+      await this.create()
       .then(() => {
         this.$notify.success('Pessoa criada com sucesso!');
         this.$router.push({ name: 'pessoa.list' });

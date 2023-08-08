@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import { Line } from "vue-chartjs";
 import {
   Chart as ChartJS,

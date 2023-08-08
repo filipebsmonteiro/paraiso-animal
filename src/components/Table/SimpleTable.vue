@@ -8,14 +8,16 @@
     <tbody>
       <tr v-for="(row, i) in rows" :key="i">
         <td v-for="(column, idx) in columns" :key="idx">
-          {{ format(getValue(row, column), column.formatter) }}
+          <slot :name="column.key" :row="row" :column="column">
+            {{ format(getValue(row, column), column.formatter) }}
+          </slot>
         </td>
       </tr>
     </tbody>
   </table>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   name: 'SimpleTable',
   props: {

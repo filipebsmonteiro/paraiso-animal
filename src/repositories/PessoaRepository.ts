@@ -24,6 +24,23 @@ class PessoaRepository extends FirebaseRepository {
       contato
     });
   }
+
+  async put(id: string, {
+    nome,
+    fantasia,
+    razaoSocial,
+    observacao,
+    contato
+  }: PessoaInterface)
+  {
+    return super.put(id, {
+      nome,
+      fantasia,
+      razaoSocial,
+      observacao,
+      contato
+    });
+  }
 }
 
 export default new PessoaRepository()

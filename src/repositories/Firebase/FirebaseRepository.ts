@@ -1,5 +1,5 @@
 import { Repository } from "@/repositories/Base/Repository";
-import { CollectionReference, collectionGroup, collection, doc, getDocs, setDoc, query, QuerySnapshot, QueryDocumentSnapshot, DocumentReference, getDoc, DocumentSnapshot, onSnapshot, Unsubscribe, DocumentChange, updateDoc } from "firebase/firestore";
+import { CollectionReference, collectionGroup, collection, doc, getDocs, setDoc, query, QuerySnapshot, QueryDocumentSnapshot, DocumentReference, getDoc, DocumentSnapshot, onSnapshot, Unsubscribe, DocumentChange, updateDoc, deleteDoc } from "firebase/firestore";
 import Firebase from "@/providers/firebase";
 import { useAuthStore } from "@/stores/auth";
 
@@ -67,16 +67,18 @@ export class FirebaseRepository extends Repository {
       .then(async (snapshot: QuerySnapshot) => {
         let data: Array<any> = [];
 
-        await new Promise((resolve) => {
-          snapshot.forEach(async (document: QueryDocumentSnapshot) => {
-            let element = { id: document.id, ...document.data() };
-            if (params && params.with) {
-              element = await this.hydrateRelations(element, params.with);
-            }
-            data.push(element)
-            resolve(data)
-          });
-        });
+        await Promise.all(
+          snapshot.docs.map((document: QueryDocumentSnapshot) => 
+            new Promise(async resolveHydrate => {
+              let element = { id: document.id, ...document.data() };
+              if (params && params.with) {
+                element = await this.hydrateRelations(element, params.with);
+              }
+              data.push(element)
+              resolveHydrate(element)
+            })
+          )
+        )
 
         resolve(data);
       })
@@ -137,8 +139,7 @@ export class FirebaseRepository extends Repository {
     );;
   }
 
-  // delete(id:string) {
-  //   return remove(ref(Firebase.database, `${this.firebasePath}/${id}`))
-  // }
-
+  delete(id: string) {
+    return deleteDoc(this.getDocReference(id))
+  }
 }

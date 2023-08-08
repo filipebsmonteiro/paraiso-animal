@@ -8,11 +8,12 @@ import {
   faHouse,
   // faLocationDot,
   // faMagnifyingGlass,
+  faPencil,
   faPerson,
   // faRecycle,
   faRightFromBracket,
   faTimes,
-  faTrash,
+  faTrashCan,
 } from "@fortawesome/free-solid-svg-icons";
 import { faGoogle } from '@fortawesome/free-brands-svg-icons'
 
@@ -25,9 +26,10 @@ library.add(
   faHouse,
   // faLocationDot,
   // faMagnifyingGlass,
+  faPencil,
   faPerson,
   // faRecycle,
   faRightFromBracket,
   faTimes,
-  faTrash
+  faTrashCan
 );

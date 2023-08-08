@@ -1,4 +1,4 @@
-<script>
+<script lang="ts">
 import { mapActions } from "pinia";
 import { useAuthStore } from "@/stores/auth";
 

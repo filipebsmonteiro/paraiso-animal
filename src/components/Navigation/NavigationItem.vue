@@ -34,7 +34,7 @@
   </router-link>
 </template>
 
-<script>
+<script lang="ts">
 export default {
   name: "NavigationItem",
   props: {
