@@ -61,45 +61,6 @@ export class FirebaseRepository extends Repository {
     });
   }
 
-  async fetch(params: any = null) {
-    return new Promise(async (resolve, reject) => {
-      await getDocs(this.getQuery())
-      .then(async (snapshot: QuerySnapshot) => {
-        let data: Array<any> = [];
-
-        await Promise.all(
-          snapshot.docs.map((document: QueryDocumentSnapshot) => 
-            new Promise(async resolveHydrate => {
-              let element = { id: document.id, ...document.data() };
-              if (params && params.with) {
-                element = await this.hydrateRelations(element, params.with);
-              }
-              data.push(element)
-              resolveHydrate(element)
-            })
-          )
-        )
-
-        resolve(data);
-      })
-      .catch(error => reject(error));
-    })
-  }
-
-  fetchOne(id: string | number, params: any = null) {
-    return new Promise(async (resolve, reject) => {
-      await getDoc(doc(Firebase.database, `${this.firebasePath}/${id}`))
-        .then(async (document: DocumentSnapshot) => {
-          let element = { id: document.id, ...document.data() };
-          if (params && params.with) {
-            element = await this.hydrateRelations(element, params.with);
-          }
-          resolve(element)
-        })
-        .catch(error => reject(error));
-    })
-  }
-
   async hydrateRelations(entity: FirebaseObject, relations: Array<string>) {
     return new Promise(async (resolve, reject) => {
       relations.forEach(async (relationKey: string) => {
@@ -124,6 +85,55 @@ export class FirebaseRepository extends Repository {
           });
       })
     });
+  }
+
+  async fetch(params: any = null) {
+    return new Promise(async (resolve, reject) => {
+      await getDocs(this.getQuery())
+      .then(async (snapshot: QuerySnapshot) => {
+        let data: Array<any> = [];
+
+        await Promise.all(
+          snapshot.docs.map((document: QueryDocumentSnapshot) => 
+            new Promise(async (resolveHydration, rejectHydration) => {
+              let element = { id: document.id, ...document.data() };
+              if (params && params.with) {
+                await this.hydrateRelations(element, params.with)
+                  .then((hydratedElement: any) => {
+                    element = hydratedElement;
+                    resolveHydration(hydratedElement);
+                  })
+                  .catch(error => rejectHydration(error));
+              }
+              data.push(element)
+              resolveHydration(element)
+            })
+          )
+        )
+
+        resolve(data);
+      })
+      .catch(error => reject(error));
+    })
+  }
+
+  fetchOne(id: string | number, params: any = null) {
+    return new Promise(async (resolve, reject) => {
+      await getDoc(doc(Firebase.database, `${this.firebasePath}/${id}`))
+        .then(async (document: DocumentSnapshot) => {
+          let element = { id: document.id, ...document.data() };
+          if (params && params.with) {
+            await this.hydrateRelations(element, params.with)
+              .then((hydratedElement: any) => {
+                element = hydratedElement;
+                resolve(hydratedElement);
+              })
+              .catch(error => reject(error));
+          }
+          resolve(element)
+        })
+        .catch(error => reject(error));
+    })
   }
 
   async post(params: any) {
