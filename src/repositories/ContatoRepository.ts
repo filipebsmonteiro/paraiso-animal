@@ -1,12 +1,10 @@
-import { ContatoConverter, ContatoInterface } from "@/models/Contato";
-import { FirebaseRepository } from "@/repositories/Firebase/FirebaseRepository";
+import { Contato, ContatoInterface } from "@/models/Contato";
+import { FirebaseRepository } from "@/repositories/Base/FirebaseRepository";
 
 class ContatoRepository extends FirebaseRepository {
   constructor() {
-    super(`contato`);
+    super(`contato`, Contato.converter);
   }
-
-  converter = ContatoConverter
 
   async post({ valor, tipo }: ContatoInterface) {
     return super.post({

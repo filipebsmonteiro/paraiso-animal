@@ -1,12 +1,10 @@
-import { PessoaConverter, PessoaInterface } from "@/models/Pessoa";
-import { FirebaseRepository } from "@/repositories/Firebase/FirebaseRepository";
+import { Pessoa, PessoaInterface } from "@/models/Pessoa";
+import { FirebaseRepository } from "@/repositories/Base/FirebaseRepository";
 
 class PessoaRepository extends FirebaseRepository {
   constructor() {
-    super(`pessoa`);
+    super(`pessoa`, Pessoa.converter);
   }
-
-  converter = PessoaConverter;
 
   async post({
     nome,

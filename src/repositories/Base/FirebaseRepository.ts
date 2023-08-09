@@ -1,30 +1,41 @@
-import { Repository } from "@/repositories/Base/Repository";
-import { CollectionReference, collectionGroup, collection, doc, getDocs, setDoc, query, QuerySnapshot, QueryDocumentSnapshot, DocumentReference, getDoc, DocumentSnapshot, onSnapshot, Unsubscribe, DocumentChange, updateDoc, deleteDoc } from "firebase/firestore";
+import { RepositoryInterface } from "@/repositories/Base/Repository";
+import {
+  CollectionReference,
+  collectionGroup,
+  collection,
+  doc,
+  getDocs,
+  setDoc,
+  query,
+  QuerySnapshot,
+  QueryDocumentSnapshot,
+  DocumentReference,
+  getDoc,
+  DocumentSnapshot,
+  onSnapshot,
+  Unsubscribe,
+  DocumentChange,
+  updateDoc,
+  deleteDoc,
+  FirestoreDataConverter
+} from "firebase/firestore";
 import Firebase from "@/providers/firebase";
-import { useAuthStore } from "@/stores/auth";
+// import { useAuthStore } from "@/stores/auth";
 
 interface FirebaseObject {
   id: string;
   [key: string]: any;
 }
 
-export class FirebaseRepository extends Repository {
-  userId: string;
+export abstract class FirebaseRepository implements RepositoryInterface {
   firebasePath: string;
   databaseRef: CollectionReference;
-  oneToMany: boolean;
+  converter: FirestoreDataConverter<any>;
 
-  constructor(path: string) {
-    super();
-    const auth = useAuthStore();
-    this.userId = auth.getUser.uid; // Firebase.auth.currentUser.uid;
-
-    if (!path) console.error(`Defina o Path para a Classe que herda FirebaseRepository`);
-    this.firebasePath = path.includes('$userId')
-      ? path.split('$userId').join(`${this.userId}`)
-      : path;
+  constructor(path: string, converter: FirestoreDataConverter<any>) {
+    this.firebasePath = path
     this.databaseRef = collection(Firebase.database, `${this.firebasePath}`);
-    this.oneToMany = true;
+    this.converter = converter
   }
 
   getQuery() {
