@@ -4,6 +4,7 @@ import vue from '@vitejs/plugin-vue'
 
 // eslint-disable-next-line no-undef
 const Dir = __dirname;
+
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
