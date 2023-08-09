@@ -5,7 +5,7 @@ export default {
   async find(id: string | number, params: any = null) {
     this.loading = true;
 
-    await PessoaRepository.fetchOne(id, params)
+    await PessoaRepository.find(id, params)
       .then(response => this.current = response)
       .catch((error) => {
         console.error(`Error On Load Pessoa: ${id}`);
@@ -58,7 +58,15 @@ export default {
     contato = {...this.current.contato};
 
     if (pessoa.contato) {
-      contato = await ContatoRepository.put(pessoa.contato.id, pessoa.contato);
+      // contato = await ContatoRepository.put(pessoa.contato.id, pessoa.contato);
+      await ContatoRepository.put(pessoa.contato.id, pessoa.contato)
+        .then(async () => {
+          contato = await ContatoRepository.find(pessoa.contato.id);
+          console.log('contato FINDED :>> ', contato);
+        }).catch((error) => {
+          console.error(`Error On Edit Contato of Pessoa`);
+          console.error(error);
+        })
     }
 
     await PessoaRepository.put(pessoa.id, {

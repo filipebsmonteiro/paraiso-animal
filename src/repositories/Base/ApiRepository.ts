@@ -18,7 +18,7 @@ export class ApiRepository implements RepositoryInterface {
     })
   }
 
-  fetchOne(id: string|number, params: any = null, paramsSerializer: Function|null = null) {
+  find(id: string|number, params: any = null, paramsSerializer: Function|null = null) {
     if (params) {
       return this.$axios.useBearerToken().get(`${this.endpoint}/${id}`, {
         params,

@@ -40,9 +40,8 @@ export abstract class FirebaseRepository implements RepositoryInterface {
 
   getQuery() {
     return query(
-      collectionGroup(Firebase.database, `${this.firebasePath}`)
-        .withConverter(this.converter)
-    )
+      collectionGroup(Firebase.database, `${this.firebasePath}`)//.withConverter(this.converter)
+    )//.withConverter(this.converter)
   }
 
   getDocReference(
@@ -72,7 +71,7 @@ export abstract class FirebaseRepository implements RepositoryInterface {
     });
   }
 
-  async hydrateRelations(entity: FirebaseObject, relations: Array<string>) {
+  private async hydrateRelations(entity: FirebaseObject, relations: Array<string>) {
     return new Promise(async (resolve, reject) => {
       relations.forEach(async (relationKey: string) => {
         const relation: DocumentReference = entity[relationKey];
@@ -128,7 +127,7 @@ export abstract class FirebaseRepository implements RepositoryInterface {
     })
   }
 
-  fetchOne(id: string | number, params: any = null) {
+  find(id: string | number, params: any = null) {
     return new Promise(async (resolve, reject) => {
       await getDoc(doc(Firebase.database, `${this.firebasePath}/${id}`))
         .then(async (document: DocumentSnapshot) => {

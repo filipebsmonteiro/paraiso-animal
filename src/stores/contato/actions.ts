@@ -5,7 +5,7 @@ export default {
   async find(id: string | number) {
     this.loading = true;
 
-    await ContatoRepository.fetchOne(id)
+    await ContatoRepository.find(id)
       .then(response => {
         console.log('response :>> ', response);
         this.current = response
