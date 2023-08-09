@@ -8,7 +8,10 @@ const Dir = __dirname;
 // https://vitejs.dev/config/
 export default defineConfig({
   define: {
-    'process.env': { ...process.env }
+    'process.env': {
+      ...process.env,
+      __APP_ENV__: process.env.VITE_VERCEL_ENV || process.env.NODE_ENV,
+    }
   },
   plugins: [vue()],
   resolve: {
