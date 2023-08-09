@@ -1,8 +1,7 @@
-import { Repository } from "@/repositories/Base/Repository";
 import { GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import Firebase from "@/providers/firebase";
 
-class Login extends Repository {
+class Login  {
   login(provider: string) {
     let providerInstance: any;
 
