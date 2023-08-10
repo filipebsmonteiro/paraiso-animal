@@ -36,7 +36,7 @@ class PessoaRepository extends FirebaseRepository {
       fantasia,
       razaoSocial,
       observacao,
-      contato
+      contato: this.getDocReference(contato.id, `contato`)
     });
   }
 }

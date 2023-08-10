@@ -64,7 +64,6 @@ export default {
           console.error(error);
         })
     }
-    return;
 
     await PessoaRepository.put(pessoa.id, {
       ...pessoa,

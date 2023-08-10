@@ -153,7 +153,7 @@ export abstract class FirebaseRepository implements RepositoryInterface {
 
   put(id: string, params: any) {
     return updateDoc(
-      doc(Firebase.database, `${this.path}/${id}`),//.withConverter(this.converter),
+      doc(Firebase.database, `${this.path}/${id}`),
       params
     );;
   }
