@@ -79,7 +79,6 @@ export default {
   },
   async delete() {
     this.loading = true;
-    console.log('this.current :>> ', this.current);
     let pessoa = {...this.current},
     contato = {...this.current.contato};
 

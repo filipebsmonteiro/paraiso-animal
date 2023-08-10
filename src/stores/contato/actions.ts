@@ -7,7 +7,6 @@ export default {
 
     await ContatoRepository.find(id)
       .then(response => {
-        console.log('response :>> ', response);
         this.current = response
       })
       .catch((error) => {

@@ -45,14 +45,14 @@ export default {
   },
   methods: {
     ...mapActions(usePessoaStore, ['delete', 'load']),
-    deleteHandler(row) {
+    async deleteHandler(row) {
       // this.$dialog
       //   .confirm(`Deseja excluir a pessoa ${row.nome}?`)
       //   .then(() => this.delete(row.id))
-      console.log('row :>> ', row);
       this.current = row
-      this.delete()
+      await this.delete()
       this.load()
+      this.current = null
     },
   },
   created() {
