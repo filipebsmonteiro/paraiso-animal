@@ -26,7 +26,7 @@ export default {
         this.list = []
       });
 
-    // const unsubscribe = Pessoa.subscribeAllChanges();
+    // const unsubscribe = PessoaRepository.subscribeAllChanges();
     // setTimeout(() => {
     //   unsubscribe();
     // }, 10000);
@@ -58,19 +58,18 @@ export default {
     contato = {...this.current.contato};
 
     if (pessoa.contato) {
-      // contato = await ContatoRepository.put(pessoa.contato.id, pessoa.contato);
-      await ContatoRepository.put(pessoa.contato.id, pessoa.contato)
-        .then(async () => {
-          contato = await ContatoRepository.find(pessoa.contato.id);
-          console.log('contato FINDED :>> ', contato);
-        }).catch((error) => {
+      ContatoRepository.put(pessoa.contato.id, pessoa.contato)
+        .catch((error) => {
           console.error(`Error On Edit Contato of Pessoa`);
           console.error(error);
         })
     }
+    return;
 
     await PessoaRepository.put(pessoa.id, {
       ...pessoa,
+
+      //TODO: ESSE CARA DEVE SER UMA REFERENCE MAS TA VINDO COMO OBJETO
       contato
     }).catch((error) => {
       console.error(`Error On Edit Pessoa`);

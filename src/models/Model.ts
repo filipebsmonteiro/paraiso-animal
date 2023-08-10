@@ -8,29 +8,31 @@ export abstract class Model implements ModelInterface {
   constructor(public id: string, ...data: any[]) {
     this.id = id;
     data.forEach((item) => Object.assign(this, item));
+    this.converter.toFirestore = this.converter.toFirestore.bind(this);
+    this.converter.fromFirestore = this.converter.fromFirestore.bind(this);
   }
 
   toJSON(): any {
-    return Object.assign({}, this);
+    const { toJSON, converter, ...rest } = this;
+    return rest;
   }
 
   converter = {
     toFirestore: (model: Model | null = null): any => {
       if (model) {
-        const { converter, id, ...rest } = model.toJSON();
+        const { id, snapshot, ...rest } = model.toJSON();
         return rest;
       } else{
-        const { converter, id, ...rest } = this.toJSON();
+        const { id, snapshot, ...rest } = this.toJSON();
         return rest;
       }
     },
-    fromFirestore(
-      snapshot: QueryDocumentSnapshot,
-      options: SnapshotOptions
-    ): Model {
-      const data = snapshot.data(options)!;
-      // return new this(snapshot.id, data);
-      return this.constructor(snapshot.id, data);
+    fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): Model => {
+      let data = snapshot.data(options);
+      // data = Object.entries(data)
+      // .reduce((acc, [key, value]) => value?.constructor.name === `_DocumentReference` ? {...acc, [key]: { snapshot: value }} : acc, {})
+      Object.assign(this, { id: snapshot.id, snapshot, ...data });
+      return this.toJSON();
     }
   }
 

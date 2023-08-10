@@ -17,10 +17,9 @@ import {
   DocumentChange,
   updateDoc,
   deleteDoc,
-  FirestoreDataConverter
 } from "firebase/firestore";
 import Firebase from "@/providers/firebase";
-// import { useAuthStore } from "@/stores/auth";
+import { Model } from "@/models/Model";
 
 interface FirebaseObject {
   id: string;
@@ -28,20 +27,10 @@ interface FirebaseObject {
 }
 
 export abstract class FirebaseRepository implements RepositoryInterface {
-  firebasePath: string;
-  databaseRef: CollectionReference;
-  converter: FirestoreDataConverter<any>;
+  collectionRef: CollectionReference;
 
-  constructor(path: string, converter: FirestoreDataConverter<any>) {
-    this.firebasePath = path
-    this.databaseRef = collection(Firebase.database, `${this.firebasePath}`);
-    this.converter = converter
-  }
-
-  getQuery() {
-    return query(
-      collectionGroup(Firebase.database, `${this.firebasePath}`)//.withConverter(this.converter)
-    )//.withConverter(this.converter)
+  constructor(public model: Model, public path: string) {
+    this.collectionRef = collection(Firebase.database, `${this.path}`);
   }
 
   getDocReference(
@@ -50,13 +39,12 @@ export abstract class FirebaseRepository implements RepositoryInterface {
   ): DocumentReference {
     return doc(
       Firebase.database,
-      `${path ? path : this.firebasePath}${id ? `/${id}` : ''}`
+      `${path ? path : this.path}${id ? `/${id}` : ''}`
     )
   }
 
   subscribeAllChanges(): Unsubscribe {
-    const q = this.getQuery();
-    return onSnapshot(q, (snapshot) => {
+    return onSnapshot(this.collectionRef, (snapshot) => {
       snapshot.docChanges().forEach((change: DocumentChange) => {
         if (change.type === "added") {
           console.log("New: ", change.doc.data());
@@ -71,22 +59,32 @@ export abstract class FirebaseRepository implements RepositoryInterface {
     });
   }
 
+  getRelationsReferences(entity: FirebaseObject, filter: Array<string> = []): Record<string, DocumentReference> {
+    return Object.entries(entity)
+      .reduce(
+        (acc, [key, value]) => 
+          value?.constructor.name === `_DocumentReference` && (filter.length === 0 || filter.includes(key))
+          ? {...acc, [key]: doc(entity[key].path)}
+          : acc,
+        {}
+      );
+  }
+
   private async hydrateRelations(entity: FirebaseObject, relations: Array<string>) {
     return new Promise(async (resolve, reject) => {
       relations.forEach(async (relationKey: string) => {
         const relation: DocumentReference = entity[relationKey];
 
         await getDoc(doc(Firebase.database, relation.path))
-          .then(async (document: DocumentSnapshot) => {
-            let data = { ...document.data() },
-            references = Object.entries(document.data())
-              .filter(([key, value]) => typeof value === `object` && value.constructor.name === `_DocumentReference`)
-              .map(([key, value]) => ({key, value}));
+          .then(async (snapshot: DocumentSnapshot) => {
+            let data = { ...snapshot.data() },
+            references = Object.entries(snapshot.data())
+              .reduce((acc, [key, value]) => value?.constructor.name === `_DocumentReference` ? [...acc, key] : acc, [])
 
             if (references.length > 0) {
-              data = await this.hydrateRelations(data, references.map(reference => reference.key));
+              data = await this.hydrateRelations(data, references);
             }
-            entity[relationKey] = { id: document.id, ...data }
+            entity[relationKey] = { ...data, id: snapshot.id, snapshot }
             resolve(entity);
           })
           .catch(error => {
@@ -99,24 +97,25 @@ export abstract class FirebaseRepository implements RepositoryInterface {
 
   async fetch(params: any = null) {
     return new Promise(async (resolve, reject) => {
-      await getDocs(this.getQuery())
+
+      await getDocs(this.collectionRef.withConverter(this.model.converter))
       .then(async (snapshot: QuerySnapshot) => {
         let data: Array<any> = [];
 
         await Promise.all(
           snapshot.docs.map((document: QueryDocumentSnapshot) => 
-            new Promise(async (resolveHydration, rejectHydration) => {
+            new Promise(async (resolveReference, rejectReference) => {
               let element = { id: document.id, ...document.data() };
               if (params && params.with) {
                 await this.hydrateRelations(element, params.with)
                   .then((hydratedElement: any) => {
                     element = hydratedElement;
-                    resolveHydration(hydratedElement);
+                    resolveReference(hydratedElement);
                   })
-                  .catch(error => rejectHydration(error));
+                  .catch(error => rejectReference(error));
               }
               data.push(element)
-              resolveHydration(element)
+              resolveReference(element)
             })
           )
         )
@@ -129,7 +128,7 @@ export abstract class FirebaseRepository implements RepositoryInterface {
 
   find(id: string | number, params: any = null) {
     return new Promise(async (resolve, reject) => {
-      await getDoc(doc(Firebase.database, `${this.firebasePath}/${id}`))
+      await getDoc(doc(Firebase.database, `${this.path}/${id}`))
         .then(async (document: DocumentSnapshot) => {
           let element = { id: document.id, ...document.data() };
           if (params && params.with) {
@@ -147,14 +146,14 @@ export abstract class FirebaseRepository implements RepositoryInterface {
   }
 
   async post(params: any) {
-    const reference = doc(this.databaseRef).withConverter(this.converter);
+    const reference = doc(this.databaseRef);//.withConverter(this.converter);
     await setDoc(reference, params);
     return reference;
   }
 
   put(id: string, params: any) {
     return updateDoc(
-      doc(Firebase.database, `${this.firebasePath}/${id}`).withConverter(this.converter),
+      doc(Firebase.database, `${this.path}/${id}`),//.withConverter(this.converter),
       params
     );;
   }
