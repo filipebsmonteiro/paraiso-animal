@@ -1,12 +1,9 @@
 import { RepositoryInterface } from "@/repositories/Base/Repository";
 import {
   CollectionReference,
-  collectionGroup,
   collection,
   doc,
   getDocs,
-  setDoc,
-  query,
   QuerySnapshot,
   QueryDocumentSnapshot,
   DocumentReference,
@@ -17,6 +14,7 @@ import {
   DocumentChange,
   updateDoc,
   deleteDoc,
+  addDoc,
 } from "firebase/firestore";
 import Firebase from "@/providers/firebase";
 import { Model } from "@/models/Model";
@@ -146,9 +144,7 @@ export abstract class FirebaseRepository implements RepositoryInterface {
   }
 
   async post(params: any) {
-    const reference = doc(this.databaseRef);//.withConverter(this.converter);
-    await setDoc(reference, params);
-    return reference;
+    return addDoc(this.collectionRef, params);
   }
 
   put(id: string, params: any) {
