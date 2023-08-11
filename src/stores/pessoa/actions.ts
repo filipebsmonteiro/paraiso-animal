@@ -2,10 +2,10 @@ import ContatoRepository from "@/repositories/ContatoRepository";
 import PessoaRepository from "@/repositories/PessoaRepository";
 
 export default {
-  async find(id: string | number, params: any = null) {
+  async find(id: string | number) {
     this.loading = true;
 
-    await PessoaRepository.find(id, params)
+    await PessoaRepository.find(id)
       .then(response => this.current = response)
       .catch((error) => {
         console.error(`Error On Load Pessoa: ${id}`);

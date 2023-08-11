@@ -3,22 +3,16 @@
 </template>
 
 <script lang="ts">
-import { Contato } from '@/models/Contato';
+import { useContatoStore } from '@/stores/contato';
+import { usePessoaStore } from '@/stores/pessoa';
 
 export default {
   name: 'Home',
-  // data() {
-  //   return {
-  //   }
-  // },
-  // methods: {
-  // }
   mounted() {
-    const contato = new Contato(`idCONTATO`, `VALORCONTATO`, { id: `TIPO_ID`, tipo: `TIPO`});
-    console.log('contato :>> ', contato);
-    console.log('contato.converter :>> ', contato.converter);
-    console.log('contato.converter.toFirestore(contato) :>> ', contato.converter.toFirestore(contato));
-    console.log('contato.converter.toFirestore() :>> ', contato.converter.toFirestore());
+    const { find: findContato } = useContatoStore();
+    const { find: findPessoa } = usePessoaStore();
+    findContato(`O8sL1h69rIIqBT6DDQC4`); // Contato
+    findPessoa(`MEduFu8c5WsgvcNOgsGT`); // Pessoa
   }
 }
 </script>

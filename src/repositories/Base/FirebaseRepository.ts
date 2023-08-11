@@ -57,40 +57,27 @@ export abstract class FirebaseRepository implements RepositoryInterface {
     });
   }
 
-  getRelationsReferences(entity: FirebaseObject, filter: Array<string> = []): Record<string, DocumentReference> {
-    return Object.entries(entity)
-      .reduce(
-        (acc, [key, value]) => 
-          value?.constructor.name === `_DocumentReference` && (filter.length === 0 || filter.includes(key))
-          ? {...acc, [key]: doc(entity[key].path)}
-          : acc,
-        {}
-      );
-  }
-
-  private async hydrateRelations(entity: FirebaseObject, relations: Array<string>) {
+  private async hydrateReferences(model: Model): Promise<Record<string, any>> {
     return new Promise(async (resolve, reject) => {
-      relations.forEach(async (relationKey: string) => {
-        const relation: DocumentReference = entity[relationKey];
+      let references = {...model.getRelations()};
+      Object.entries(references).map(async ([key, value]) => {
+        const relationRef: DocumentReference = doc(Firebase.database, value.reference.path).withConverter(value.converter);
 
-        await getDoc(doc(Firebase.database, relation.path))
+        await getDoc(relationRef)
           .then(async (snapshot: DocumentSnapshot) => {
-            let data = { ...snapshot.data() },
-            references = Object.entries(snapshot.data())
-              .reduce((acc, [key, value]) => value?.constructor.name === `_DocumentReference` ? [...acc, key] : acc, [])
+            let data = snapshot.data() as Model,
+            subReferences: any = {};
 
-            if (references.length > 0) {
-              data = await this.hydrateRelations(data, references);
+            if (Object.keys(value.getRelations()).length > 0) {
+              subReferences = await this.hydrateReferences(data);
             }
-            entity[relationKey] = { ...data, id: snapshot.id, snapshot }
-            resolve(entity);
+
+            references[key] = {...data, ...subReferences};
           })
-          .catch(error => {
-            console.error(`Error on hydrate ${entity.id} Relations`);
-            reject(error);
-          });
+          .catch(error => reject(error));
       })
-    });
+      resolve(references);
+    })
   }
 
   async fetch(params: any = null) {
@@ -103,17 +90,18 @@ export abstract class FirebaseRepository implements RepositoryInterface {
         await Promise.all(
           snapshot.docs.map((document: QueryDocumentSnapshot) => 
             new Promise(async (resolveReference, rejectReference) => {
-              let element = { id: document.id, ...document.data() };
-              if (params && params.with) {
-                await this.hydrateRelations(element, params.with)
-                  .then((hydratedElement: any) => {
-                    element = hydratedElement;
-                    resolveReference(hydratedElement);
-                  })
-                  .catch(error => rejectReference(error));
-              }
-              data.push(element)
-              resolveReference(element)
+              // let element = { id: document.id, ...document.data() };
+              let model = document.data() as Model;;
+              // if (params && params.with) {
+                await this.hydrateReferences(model)
+                  // .then((hydratedElement: any) => {
+                  //   element = hydratedElement;
+                  //   resolveReference(hydratedElement);
+                  // })
+                  // .catch(error => rejectReference(error));
+              // }
+              data.push(model)
+              resolveReference(model)
             })
           )
         )
@@ -124,20 +112,16 @@ export abstract class FirebaseRepository implements RepositoryInterface {
     })
   }
 
-  find(id: string | number, params: any = null) {
+  find(id: string | number) {
     return new Promise(async (resolve, reject) => {
-      await getDoc(doc(Firebase.database, `${this.path}/${id}`))
-        .then(async (document: DocumentSnapshot) => {
-          let element = { id: document.id, ...document.data() };
-          if (params && params.with) {
-            await this.hydrateRelations(element, params.with)
-              .then((hydratedElement: any) => {
-                element = hydratedElement;
-                resolve(hydratedElement);
-              })
-              .catch(error => reject(error));
-          }
-          resolve(element)
+
+      const reference = this.getDocReference(id).withConverter(this.model.converter)
+      await getDoc(reference)
+        .then(async (snapshot: DocumentSnapshot) => {
+          let model: Model = snapshot.data() as Model;
+          await this.hydrateReferences(model);
+          Object.assign(model, { reference });
+          resolve(model)
         })
         .catch(error => reject(error));
     })

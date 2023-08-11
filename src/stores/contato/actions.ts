@@ -6,9 +6,7 @@ export default {
     this.loading = true;
 
     await ContatoRepository.find(id)
-      .then(response => {
-        this.current = response
-      })
+      .then(response => this.current = response)
       .catch((error) => {
         console.error(`Error On Load Contato: ${id}`);
         console.error(error);

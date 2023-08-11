@@ -1,7 +1,6 @@
 import { TipoInterface } from "@/models/Tipos/Tipo";
 import TipoContato from "@/models/Tipos/TipoContato";
 import { Model } from "@/models/Model";
-import { QueryDocumentSnapshot, DocumentData, SnapshotOptions } from "firebase/firestore";
 
 export interface ContatoInterface {
   id: string | number;
@@ -17,14 +16,6 @@ export class Contato extends Model implements ContatoInterface {
   ) {
     super(id, { valor, tipo })
   }
-
-  // fromFirestore = (snapshot: QueryDocumentSnapshot<DocumentData, DocumentData>, options: SnapshotOptions): Model => {
-  //   const contato = super.fromFirestore(snapshot, options);
-  //   if (contato.tipo) {
-  //     contato.tipo = TipoContato.fromFirestore(snapshot.get(`tipo`), options);
-  //   }
-  //   return contato;
-  // };
 }
 
 export default new Contato(``, ``, TipoContato);

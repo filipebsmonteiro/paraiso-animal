@@ -23,13 +23,6 @@ export class Pessoa extends Model implements PessoaInterface {
     super(id, { nome, fantasia, observacao, razaoSocial, contato })
   }
 
-  // fromFirestore = (snapshot: QueryDocumentSnapshot<DocumentData, DocumentData>, options: SnapshotOptions): Model => {
-  //   const pessoa = super.fromFirestore(snapshot, options);
-  //   if (pessoa.contato) {
-  //     pessoa.contato = Contato.fromFirestore(snapshot.get(`contato`), options);
-  //   }
-  //   return pessoa;
-  // };
 };
 
 export default new Pessoa(``, ``, ``, ``, ``, Contato);

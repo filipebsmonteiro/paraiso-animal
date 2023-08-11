@@ -39,6 +39,8 @@ export default {
       columns: [
         { key: 'nome', label: 'Nome/Fantasia' },
         { key: 'contato', label: 'Contato', formatter: (value) => `${value?.valor} - ${value?.tipo?.tipo}` },
+        // { key: 'contato', label: 'Contato', formatter: (value) => JSON.stringify(value) },
+        // { key: 'contato', label: 'Contato', formatter: (value) => `${value?.valor} - ` },
         { key: 'actions', label: 'Ações' },
       ],
     }
@@ -55,8 +57,8 @@ export default {
       this.current = null
     },
   },
-  created() {
-    this.load()
+  async created() {
+    await this.load()
   },
 }
 </script>
