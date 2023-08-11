@@ -1,5 +1,7 @@
 <template>
   <h1>HOME</h1>
+  <h1>Chegamos no estado da arte</h1>
+  <h1>Mas agora falta revisar o fluxo de carregamento e reatividade, pq os subniveis são atualizados mas não mostram em tela </h1>
 </template>
 
 <script lang="ts">
