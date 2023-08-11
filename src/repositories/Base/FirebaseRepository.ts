@@ -89,16 +89,10 @@ export abstract class FirebaseRepository implements RepositoryInterface {
 
         await Promise.all(
           snapshot.docs.map((document: QueryDocumentSnapshot) => 
-            new Promise(async (resolveReference, rejectReference) => {
-              // let element = { id: document.id, ...document.data() };
+            new Promise(async (resolveReference) => {
               let model = document.data() as Model;;
               // if (params && params.with) {
                 await this.hydrateReferences(model)
-                  // .then((hydratedElement: any) => {
-                  //   element = hydratedElement;
-                  //   resolveReference(hydratedElement);
-                  // })
-                  // .catch(error => rejectReference(error));
               // }
               data.push(model)
               resolveReference(model)
