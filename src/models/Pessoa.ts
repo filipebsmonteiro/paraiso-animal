@@ -1,5 +1,5 @@
-import { QueryDocumentSnapshot, SnapshotOptions, SnapshotOptions, doc, setDoc } from "firebase/firestore";
-import { ContatoInterface } from "./Contato";
+import { default as Contato, ContatoInterface } from "@/models/Contato";
+import { FirestoreModel } from "@/models/Base/FirestoreModel";
 
 export interface PessoaInterface {
   id: string;
@@ -7,49 +7,21 @@ export interface PessoaInterface {
   fantasia: string;
   observacao: string;
   razaoSocial: string;
-  contato: ContatoInterface[];
+  contato: ContatoInterface;
 }
 
-export class Pessoa implements PessoaInterface {
+export class Pessoa extends FirestoreModel implements PessoaInterface {
   constructor(
     public id: string,
     public nome: string,
     public fantasia: string,
     public observacao: string,
     public razaoSocial: string,
-    public contato: ContatoInterface[],
+    public contato: ContatoInterface,
   ) {
-    this.id = id;
-    this.nome = nome;
-    this.fantasia = fantasia;
-    this.observacao = observacao;
-    this.razaoSocial = razaoSocial;
-    this.contato = contato;
+    super(id, { nome, fantasia, observacao, razaoSocial, contato })
   }
+
 };
 
-export const PessoaConverter = {
-  toFirestore(pessoa: Pessoa): object {
-    return {
-      nome: pessoa.nome,
-      fantasia: pessoa.fantasia,
-      observacao: pessoa.observacao,
-      razaoSocial: pessoa.razaoSocial,
-      contato: pessoa.contato,
-    };
-  },
-  fromFirestore(
-    snapshot: QueryDocumentSnapshot,
-    options: SnapshotOptions
-  ): Pessoa {
-    const data = snapshot.data(options)!;
-    return new Pessoa(
-      snapshot.id,
-      data.nome,
-      data.fantasia,
-      data.observacao,
-      data.razaoSocial,
-      data.contato,
-    );
-  }
-};
+export default new Pessoa(``, ``, ``, ``, ``, Contato);

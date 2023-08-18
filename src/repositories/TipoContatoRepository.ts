@@ -1,8 +1,9 @@
-import { FirebaseRepository } from "@/repositories/Firebase/FirebaseRepository";
+import TipoContato from "@/models/Tipos/TipoContato";
+import { FirebaseRepository } from "@/repositories/Base/FirebaseRepository";
 
 class TipoContatoRepository extends FirebaseRepository {
   constructor() {
-    super(`tipo-contato`);
+    super(TipoContato, `tipo-contato`);
   }
 
 }

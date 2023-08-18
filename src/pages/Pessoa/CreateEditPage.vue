@@ -114,6 +114,7 @@ export default {
         await this.update()
         .then(() => {
           this.$notify.success('Pessoa editada com sucesso!');
+          this.current = null;
           this.$router.push({ name: 'pessoa.list' });
         })  
         return;
@@ -122,6 +123,7 @@ export default {
       await this.create()
       .then(() => {
         this.$notify.success('Pessoa criada com sucesso!');
+        this.current = null;
         this.$router.push({ name: 'pessoa.list' });
       })
     },

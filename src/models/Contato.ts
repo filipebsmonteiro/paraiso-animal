@@ -1,40 +1,21 @@
-import { QueryDocumentSnapshot, SnapshotOptions } from "firebase/firestore";
-import { TipoInterface } from "./Tipo";
+import { TipoInterface } from "@/models/Tipos/Tipo";
+import TipoContato from "@/models/Tipos/TipoContato";
+import { FirestoreModel } from "@/models/Base/FirestoreModel";
 
 export interface ContatoInterface {
   id: string | number;
   valor: string;
-  tipo: TipoInterface;
+  tipo: TipoInterface | string | number | null | undefined;
 }
 
-export class Contato implements ContatoInterface {
+export class Contato extends FirestoreModel implements ContatoInterface {
   constructor(
     public id: string,
     public valor: string,
     public tipo: TipoInterface,
   ) {
-    this.id = id;
-    this.valor = valor;
-    this.tipo = tipo;
+    super(id, { valor, tipo })
   }
 }
 
-export const ContatoConverter = {
-  toFirestore(contato: Contato): any {
-    return {
-      valor: contato.valor,
-      tipo: contato.tipo,
-    };
-  },
-  fromFirestore(
-    snapshot: QueryDocumentSnapshot,
-    options: SnapshotOptions
-  ): Contato {
-    const data = snapshot.data(options)!;
-    return new Contato(
-      snapshot.id,
-      data.valor,
-      data.tipo,
-    );
-  }
-};
+export default new Contato(``, ``, TipoContato);

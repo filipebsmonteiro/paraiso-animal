@@ -2,10 +2,10 @@ import ContatoRepository from "@/repositories/ContatoRepository";
 import PessoaRepository from "@/repositories/PessoaRepository";
 
 export default {
-  async find(id: string | number, params: any = null) {
+  async find(id: string | number) {
     this.loading = true;
 
-    await PessoaRepository.fetchOne(id, params)
+    await PessoaRepository.find(id)
       .then(response => this.current = response)
       .catch((error) => {
         console.error(`Error On Load Pessoa: ${id}`);
@@ -26,7 +26,7 @@ export default {
         this.list = []
       });
 
-    // const unsubscribe = Pessoa.subscribeAllChanges();
+    // const unsubscribe = PessoaRepository.subscribeAllChanges();
     // setTimeout(() => {
     //   unsubscribe();
     // }, 10000);
@@ -58,11 +58,17 @@ export default {
     contato = {...this.current.contato};
 
     if (pessoa.contato) {
-      contato = await ContatoRepository.put(pessoa.contato.id, pessoa.contato);
+      ContatoRepository.put(pessoa.contato.id, pessoa.contato)
+        .catch((error) => {
+          console.error(`Error On Edit Contato of Pessoa`);
+          console.error(error);
+        })
     }
 
     await PessoaRepository.put(pessoa.id, {
       ...pessoa,
+
+      //TODO: ESSE CARA DEVE SER UMA REFERENCE MAS TA VINDO COMO OBJETO
       contato
     }).catch((error) => {
       console.error(`Error On Edit Pessoa`);
@@ -73,7 +79,6 @@ export default {
   },
   async delete() {
     this.loading = true;
-    console.log('this.current :>> ', this.current);
     let pessoa = {...this.current},
     contato = {...this.current.contato};
 

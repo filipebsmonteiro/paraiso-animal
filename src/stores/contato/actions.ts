@@ -5,11 +5,8 @@ export default {
   async find(id: string | number) {
     this.loading = true;
 
-    await ContatoRepository.fetchOne(id)
-      .then(response => {
-        console.log('response :>> ', response);
-        this.current = response
-      })
+    await ContatoRepository.find(id)
+      .then(response => this.current = response)
       .catch((error) => {
         console.error(`Error On Load Contato: ${id}`);
         console.error(error);
