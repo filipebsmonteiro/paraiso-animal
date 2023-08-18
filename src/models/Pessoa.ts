@@ -1,6 +1,5 @@
 import { default as Contato, ContatoInterface } from "@/models/Contato";
-import { Model } from "@/models/Model";
-import { DocumentData, QueryDocumentSnapshot, SnapshotOptions } from "firebase/firestore";
+import { FirestoreModel } from "@/models/Base/FirestoreModel";
 
 export interface PessoaInterface {
   id: string;
@@ -11,7 +10,7 @@ export interface PessoaInterface {
   contato: ContatoInterface;
 }
 
-export class Pessoa extends Model implements PessoaInterface {
+export class Pessoa extends FirestoreModel implements PessoaInterface {
   constructor(
     public id: string,
     public nome: string,

@@ -1,6 +1,7 @@
 import { DocumentReference, FirestoreDataConverter, QueryDocumentSnapshot, SnapshotOptions } from "firebase/firestore";
+import { Model } from "@/models/Base/Model";
 
-export interface ModelInterface {
+export interface FirestoreModelInterface {
   id: string | number;
   toJSON(): any;
   snapshot: QueryDocumentSnapshot | null;
@@ -8,19 +9,16 @@ export interface ModelInterface {
   converter: FirestoreDataConverter<Model>;
 }
 
-export abstract class Model implements ModelInterface {
+export abstract class FirestoreModel extends Model implements FirestoreModelInterface {
   snapshot: QueryDocumentSnapshot|null = null;
-  // reference: DocumentReference|null = null;
 
   constructor(public id: string, ...data: any[]) {
-    this.id = id;
-    data.forEach((item) => Object.assign(this, item));
+    super(id, ...data)
     this.converter.toFirestore = this.converter.toFirestore.bind(this);
     this.converter.fromFirestore = this.converter.fromFirestore.bind(this);
   }
 
   toJSON(): Record<string, any> {
-    // const { toJSON, references, reference, converter, ...rest } = this;
     const { toJSON, references, converter, ...rest } = this;
     return rest;
   }
@@ -74,7 +72,6 @@ export abstract class Model implements ModelInterface {
     // Parse called when request snapshot.data()
     fromFirestore: (snapshot: QueryDocumentSnapshot, options: SnapshotOptions): Model => {
       let data = snapshot.data(options);
-      // console.log(`data ${this.constructor.name} :>> '`, data);
 
       // Select which references are Models
       const references = this.getReferences(data);
@@ -89,7 +86,6 @@ export abstract class Model implements ModelInterface {
           });
         }
       });
-      // console.log('this.constructor.name :>> ', this.constructor.name);
 
       Object.assign(this, { id: snapshot.id, snapshot, ...data });
       return this;

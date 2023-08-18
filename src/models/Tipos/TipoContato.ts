@@ -1,7 +1,7 @@
-import { Model } from "@/models/Model";
+import { FirestoreModel } from "@/models/Base/FirestoreModel";
 import { TipoInterface } from "@/models/Tipos/Tipo";
 
-export class TipoContato extends Model implements TipoInterface {
+export class TipoContato extends FirestoreModel implements TipoInterface {
   constructor(public id: string, public tipo: any) {
     super(id,  { tipo })
   }

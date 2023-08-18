@@ -1,4 +1,4 @@
-import { Model } from "@/models/Model"
+import { Model } from "@/models/Base/Model"
 
 export interface RepositoryInterface {
   model: Model;

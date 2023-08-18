@@ -17,7 +17,7 @@ import {
   addDoc,
 } from "firebase/firestore";
 import Firebase from "@/providers/firebase";
-import { Model } from "@/models/Model";
+import { FirestoreModel } from "@/models/Base/FirestoreModel";
 
 interface FirebaseObject {
   id: string;
@@ -27,7 +27,7 @@ interface FirebaseObject {
 export abstract class FirebaseRepository implements RepositoryInterface {
   collectionRef: CollectionReference;
 
-  constructor(public model: Model, public path: string) {
+  constructor(public model: FirestoreModel, public path: string) {
     this.collectionRef = collection(Firebase.database, `${this.path}`);
   }
 
@@ -57,7 +57,7 @@ export abstract class FirebaseRepository implements RepositoryInterface {
     });
   }
 
-  private async hydrateReferences(model: Model): Promise<Record<string, any>> {
+  private async hydrateReferences(model: FirestoreModel): Promise<Record<string, any>> {
     return new Promise(async (resolve, reject) => {
       let references = {...model.getRelations()};
       Object.entries(references).map(async ([key, value]) => {
@@ -65,7 +65,7 @@ export abstract class FirebaseRepository implements RepositoryInterface {
 
         await getDoc(relationRef)
           .then(async (snapshot: DocumentSnapshot) => {
-            let data = snapshot.data() as Model,
+            let data = snapshot.data() as FirestoreModel,
             subReferences: any = {};
 
             if (Object.keys(value.getRelations()).length > 0) {
@@ -90,7 +90,7 @@ export abstract class FirebaseRepository implements RepositoryInterface {
         await Promise.all(
           snapshot.docs.map((document: QueryDocumentSnapshot) => 
             new Promise(async (resolveReference) => {
-              let model = document.data() as Model;;
+              let model = document.data() as FirestoreModel;;
               // if (params && params.with) {
                 await this.hydrateReferences(model)
               // }
@@ -112,7 +112,7 @@ export abstract class FirebaseRepository implements RepositoryInterface {
       const reference = this.getDocReference(id).withConverter(this.model.converter)
       await getDoc(reference)
         .then(async (snapshot: DocumentSnapshot) => {
-          let model: Model = snapshot.data() as Model;
+          let model: FirestoreModel = snapshot.data() as FirestoreModel;
           await this.hydrateReferences(model);
           Object.assign(model, { reference });
           resolve(model)
